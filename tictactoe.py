@@ -14,6 +14,13 @@ def test():
     assert (check_state((1, -1, 1, -1, 1, -1, 1, 1, -1)) == 1)
 
 
+def update_tuple(tuple_to_update, index, val):
+    tuple_updated = list(tuple_to_update)
+    tuple_updated[index] = val
+    tuple_updated = tuple(tuple_updated)
+    return tuple_updated
+
+
 def check_state(board):
     # win?
     # lines
@@ -58,9 +65,7 @@ def construct_tree(board, is_cross=True):
         if p != EMPTY_CELL:
             continue
         # Modification du tuple pour inscrire la case dans laquelle on joue
-        child_board = list(board)
-        child_board[i] = CROSS_CELL if is_cross else ROUND_CELL
-        child_board = tuple(child_board)
+        child_board = update_tuple(board, i, CROSS_CELL if is_cross else ROUND_CELL)
 
         tree[board].append(child_board)
         construct_tree(child_board, not is_cross)
@@ -68,11 +73,98 @@ def construct_tree(board, is_cross=True):
     scores[board] = score
 
 
+def decision(board, bot_is_cross):
+    val, child_board = -float('inf') if bot_is_cross else float('inf'), TUPLE_ORIGINAL
+    for child in tree[board]:
+        if bot_is_cross and val < scores[child] or not bot_is_cross and val > scores[child]:
+            val = scores[child]
+            child_board = child
+    diff = 0
+    while diff < BOARD_SIZE and child_board[diff] == board[diff]:
+        diff += 1
+    return diff
+
+
 test()
 construct_tree(TUPLE_ORIGINAL)
-count = 0
+'''count = 0
 for k, v in scores.items():
     count += 1
 # print(tree)
 print(scores)
-print(count)
+print(count)'''
+
+###### PARTIE JEU ############
+gameBoard = [EMPTY_CELL, EMPTY_CELL, EMPTY_CELL,
+             EMPTY_CELL, EMPTY_CELL, EMPTY_CELL,
+             EMPTY_CELL, EMPTY_CELL, EMPTY_CELL]
+
+
+def transformCell(typeCell):
+    if typeCell == CROSS_CELL:
+        return 'X'
+    elif typeCell == ROUND_CELL:
+        return 'O'
+    else:
+        return ' '
+
+
+def gameView():
+    print('-----------')
+    print(' ' + transformCell(gameBoard[0]) + ' | ' + transformCell(gameBoard[1]) + ' | ' + transformCell(gameBoard[2]))
+    print('---+---+---')
+    print(' ' + transformCell(gameBoard[3]) + ' | ' + transformCell(gameBoard[4]) + ' | ' + transformCell(gameBoard[5]))
+    print('---+---+---')
+    print(' ' + transformCell(gameBoard[6]) + ' | ' + transformCell(gameBoard[7]) + ' | ' + transformCell(gameBoard[8]))
+    print('-----------')
+
+
+def isPositionable(position):
+    if gameBoard[position] == EMPTY_CELL:
+        return True
+    else:
+        return False
+
+
+def endOfTheGame(state):
+    if state == 0:
+        print("Draw. Play again!")
+    elif state == -1:
+        print("Circle player win the game !")
+    else:
+        print("Cross player win the game !")
+    exit()
+
+
+def gameplayUpdate(typeCell, position):
+    if isPositionable(position):
+        gameBoard[position] = typeCell
+        gameView()
+        state = check_state(gameBoard)
+        if type(state) == int:
+            endOfTheGame(state)
+        return
+
+    else:
+        print("This cell is already taken")
+        position = int(input("Enter new position [1-9] : ")) - 1
+        gameplayUpdate(typeCell, position)
+        return
+
+
+def playerTurn():
+    position = int(input("Enter a position [1-9] : ")) - 1
+    gameplayUpdate(ROUND_CELL, position)
+    return
+
+
+def botTurn():
+    position = decision(tuple(gameBoard), True)
+    print("Le bot choisi la position : " + str(position + 1))
+    gameplayUpdate(CROSS_CELL, position)
+    return
+
+
+while check_state(gameBoard) != int:
+    botTurn()
+    playerTurn()
