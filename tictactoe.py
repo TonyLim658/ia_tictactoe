@@ -1,4 +1,5 @@
-hash_states = {}
+tree = {}  # tuple: [tuple] | int
+scores = {}  # tuple: int
 CROSS_CELL = 1
 ROUND_CELL = -1
 EMPTY_CELL = 0
@@ -6,10 +7,14 @@ BOARD_SIZE = 9
 TUPLE_ORIGINAL = (EMPTY_CELL, EMPTY_CELL, EMPTY_CELL,
                   EMPTY_CELL, EMPTY_CELL, EMPTY_CELL,
                   EMPTY_CELL, EMPTY_CELL, EMPTY_CELL)
-# TUPLE_ORIGINAL = (EMPTY_CELL, EMPTY_CELL, EMPTY_CELL, EMPTY_CELL)
 
 
-def checkState(board):
+def test():
+    assert (check_state(TUPLE_ORIGINAL) is None)
+    assert (check_state((1, -1, 1, -1, 1, -1, 1, 1, -1)) == 1)
+
+
+def check_state(board):
     # win?
     # lines
     if board[0] == board[1] and board[0] == board[2] and board[0] != EMPTY_CELL:
@@ -32,21 +37,24 @@ def checkState(board):
         return board[6]
     # draw?
     for i in range(BOARD_SIZE):
-        if EMPTY_CELL:
+        if EMPTY_CELL == board[i]:
             return None
     return EMPTY_CELL
 
 
-def constructTree(board, is_cross=True):
-    if board in hash_states:
+def construct_tree(board, is_cross=True):
+    if board in tree:
         return
-    state = checkState(board)
-    if state:
-        hash_states[board] = state
+    state = check_state(board)
+    if type(state) == int:
+        tree[board] = state
+        scores[board] = state
         return
     else:
-        hash_states[board] = []
+        tree[board] = []
+    score = -float('inf') if is_cross else float('inf')
     for i, p in enumerate(board):
+        # Au niveau de la lecture on tombe une case prise
         if p != EMPTY_CELL:
             continue
         # Modification du tuple pour inscrire la case dans laquelle on joue
@@ -54,24 +62,17 @@ def constructTree(board, is_cross=True):
         child_board[i] = CROSS_CELL if is_cross else ROUND_CELL
         child_board = tuple(child_board)
 
-        hash_states[board].append(child_board)
-        constructTree(child_board, not is_cross)
+        tree[board].append(child_board)
+        construct_tree(child_board, not is_cross)
+        score = max(score, scores[child_board]) if is_cross else min(score, scores[child_board])
+    scores[board] = score
 
 
-# def calculate_value(root, board, is_cross=True):
-#     for child in root.children:
-#         x, y = root.x, root.y
-#         board[y][x] = 'X' if is_cross else 'O'
-#         calculate_value(child, board, not is_cross)
-#         board[y][x] = ' '
-#         # TODO COMPLETE
-
-
-constructTree(TUPLE_ORIGINAL)
+test()
+construct_tree(TUPLE_ORIGINAL)
 count = 0
-for k, v in hash_states.items():
+for k, v in scores.items():
     count += 1
-
-# calculate_value(root, BOARD_ORIGINAL)
-print(hash_states)
+# print(tree)
+print(scores)
 print(count)
