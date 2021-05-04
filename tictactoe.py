@@ -133,7 +133,7 @@ def endOfTheGame(state):
         print("Circle player win the game !")
     else:
         print("Cross player win the game !")
-    exit()
+    exit(0)
 
 
 def gameplayUpdate(typeCell, position):
@@ -152,19 +152,36 @@ def gameplayUpdate(typeCell, position):
         return
 
 
-def playerTurn():
+def playerTurn(cellType):
     position = int(input("Enter a position [1-9] : ")) - 1
-    gameplayUpdate(ROUND_CELL, position)
+    gameplayUpdate(cellType, position)
     return
 
 
-def botTurn():
-    position = decision(tuple(gameBoard), True)
+def botTurn(isFirst, cellType):
+    position = decision(tuple(gameBoard), isFirst)
     print("Le bot choisi la position : " + str(position + 1))
-    gameplayUpdate(CROSS_CELL, position)
+    gameplayUpdate(cellType, position)
     return
 
 
-while check_state(gameBoard) != int:
-    botTurn()
-    playerTurn()
+def askForBegin():
+    ans = input("Do you want to start? (y/n) : ")
+    if ans == "y":
+        return False
+    elif ans == "n":
+        return True
+    else:
+        return askForBegin()
+
+
+##### LANCEMENT DU JEU ####
+botStart = askForBegin()
+if botStart:
+    while check_state(gameBoard) != int:
+        botTurn(True, CROSS_CELL)
+        playerTurn(ROUND_CELL)
+else:
+    while check_state(gameBoard) != int:
+        playerTurn(CROSS_CELL)
+        botTurn(False, ROUND_CELL)
