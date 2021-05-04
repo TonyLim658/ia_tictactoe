@@ -9,11 +9,6 @@ TUPLE_ORIGINAL = (EMPTY_CELL, EMPTY_CELL, EMPTY_CELL,
                   EMPTY_CELL, EMPTY_CELL, EMPTY_CELL)
 
 
-def test():
-    assert (check_state(TUPLE_ORIGINAL) is None)
-    assert (check_state((1, -1, 1, -1, 1, -1, 1, 1, -1)) == 1)
-
-
 def update_tuple(tuple_to_update, index, val):
     tuple_updated = list(tuple_to_update)
     tuple_updated[index] = val
@@ -85,14 +80,7 @@ def decision(board, bot_is_cross):
     return diff
 
 
-test()
 construct_tree(TUPLE_ORIGINAL)
-'''count = 0
-for k, v in scores.items():
-    count += 1
-# print(tree)
-print(scores)
-print(count)'''
 
 ###### PARTIE JEU ############
 gameBoard = [EMPTY_CELL, EMPTY_CELL, EMPTY_CELL,
