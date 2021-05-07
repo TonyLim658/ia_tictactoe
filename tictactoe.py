@@ -167,11 +167,11 @@ def askForBegin():
 botStart = askForBegin()
 if botStart :
     print("You are the Circle player ! ")
-    while check_state(gameBoard) != int:
+    while check_state(gameBoard) is None:
         botTurn(True, CROSS_CELL)
         playerTurn(ROUND_CELL)
 else:
     print("You are the Cross player ! ")
-    while check_state(gameBoard) != int:
+    while check_state(gameBoard) is None:
         playerTurn(CROSS_CELL)
         botTurn(False,ROUND_CELL)
